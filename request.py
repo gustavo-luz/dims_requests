@@ -1,34 +1,70 @@
 import json
 import requests
+import pandas as pd
 
 
-
-base = "http://uiot-dims.herokuapp.com/list/data"
-chipset = "AE:08:62:24:F9:71" 
-url = base + "?chipset=" + chipset 
-print(url)
+url = "http://uiot-dims.herokuapp.com/list/data"
 
 r = requests.get(url)
-content = json.loads(r.content)
-print(type(content))
-#print(content)
-
-#observations desired: change this to see more data
-n = 5
-# first obs: change this to change the starting point
-f = 5
-# individual obs (for current sending)
-n = (3 * n)+f
-# see content
-new = []
-for i in range(f,n):
-    print(content[i]['value'])
-    # append values to empty list
-    new.append(content[i]['value'])
-
-print(new)
-#TODO join lists 3 by 3
-#s = ''.join(new)
 
 
+content = r.json()
+#CREATE DF
+df = pd.DataFrame.from_dict(content)
+
+# some df observations
+#print(df.head)
+#df.info()
+#print(df.describe())
+
+
+# TODO add more devices according to chipset
+# TODO create link between chipset and device (chipset x = id y)
+
+# CREATE dataframe matheus - CURRENT DEVICE 
+dfmath = df[df["chipset"]== "AE:08:62:24:F9:71"]
+#print(dfmath.head())
+
+# select last 2 rows (before that the sendings wasn't aggregated)
+dfmath = dfmath.iloc[0:2,:]
+print(dfmath)
+#print(type(dfmath))
+
+
+#TODO split values into columns
+
+"""
+#OPTION 1
+
+dfmath = dfmath.str.split(expand=True,)
+print(dfmath)
+# AttributeError: 'DataFrame' object has no attribute 'str'
+"""
+
+"""
+#OPTION 2
+
+#convert to series
+dfmath = pd.Series(dfmath.value.values.flatten())
+print(dfmath)
+print(type(dfmath))
+
+dfmath = dfmath.str.split("/", expand=True)
+print(dfmath)
+
+#nan value
+"""
+
+#EXPORTING TO CSV 
+# no unziping
+dfmath.to_csv('out.csv',index=False) 
+
+# if you want to zip it
+"""
+compression_opts = dict(method='zip',archive_name='out.csv')
+dfmath.to_csv('out.zip', index=False,compression=compression_opts)  
+"""
+
+
+#TODO export to google sheets
 
