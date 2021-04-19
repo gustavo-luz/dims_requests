@@ -1,18 +1,16 @@
 # dims_requests
 
 ## TODO
-fazer um dict com os chipsets e ids
 
-mudar a forma que o dado é enviado, desse jeito tem 2 ints um sendo a bateria e outro a distância sem padronização
-padronizar para o envio do cássio também, dessa forma temos que extrair cada um de um jeito
-
-limpar os dados
-ver como atualizar de tempos
-configurar o data studio: quais gráficos vão ser mostrados,
-layout 
+add more devices according to chipset
+create link between chipset and device (chipset x = id y)
+split values into columns
+prep data: convert cm to %, send only needed fields 
+configure final csv
+export to google sheets
 
 # data goal
-[id,date,battery level, filling percentual]
+[id,filling percentual,date,battery level]
 id -> linkink id with the chipset (future can be a key sent to dims)
 from millis (https://currentmillis.com/) to ISO
 data received + "%"
@@ -20,7 +18,7 @@ data received converted to %
 
 
 
-# infra
+# infra, notes 
 alguns dos devices manda um post pro heroku e as vezes manda a aplicação serveless rodar
 
 conductor: evolução do cron, além de setar o tempo
