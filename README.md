@@ -1,7 +1,7 @@
 # dims_requests
 clone this repository and enter it
-git clone https://github.com/uiot/UV-Covid.git
-cd UV-Covid
+git clone https://github.com/gustavo-luz/dims_requests
+cd dims_requests
 
 ## create and start a virtualenv
 
