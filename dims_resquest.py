@@ -5,11 +5,24 @@ import datetime
 from datetime import datetime
 
 #convert to iso
-data = "2017-01-01T12:30:59Z"
-# datetime não está lendo
+data = "2017-01-01T12:30:55Z"
+# remove Z
 data = data[:-1]
-date1 = datetime.fromisoformat(data)
-print(date1)
+# find what is after 2nd ":"
+sep = ":"
+datasep = sep.join(data.split(sep)[2:])
+
+# if data has 2 digits after last : , do nothing
+if len(datasep) == 2:
+    data = data
+# else, add a 0
+else:
+    data = data[:17] + "0" + data[17:]
+
+print(data)
+data = datetime.fromisoformat(data)
+#data = data.split(" ") 
+print(data)
 """
 class Date:
     def __init__(self, date):
@@ -86,12 +99,12 @@ dfmath = df[df["chipset"] == "AE:08:62:24:F9:71"]
 #print(dfmath.head())
 
 # Acquisitions outside this range are in a wrong format
-dfmath = dfmath.iloc[0:9] 
-print(dfmath)
+dfmath = dfmath.iloc[0:2] #[0:9]
+# UNCOMENT print(dfmath)
 
 # This lines splits values into columns
 value = dfmath['value'].array
-print(value[0])
+# UNCOMENTprint(value[0])
 
 # For each acquisition (This one takes 10th, 11th and 12th acquisitions) an Info object is created cointaining information in "value" column
 for i in value:
@@ -102,6 +115,7 @@ for i in value:
     #print(info.capacity)
     #print(info.battery)
  
+#send data and hour
 
 #EXPORTING TO CSV 
 # no unziping
