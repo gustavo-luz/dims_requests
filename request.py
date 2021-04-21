@@ -11,7 +11,7 @@ r = requests.get(url)
 content = r.json()
 #CREATE DF
 df = pd.DataFrame.from_dict(content)
-
+print(df.value)
 # some df observations
 #print(df.head)
 #df.info()
@@ -23,23 +23,23 @@ df = pd.DataFrame.from_dict(content)
 
 # CREATE dataframe matheus - CURRENT DEVICE 
 dfmath = df[df["chipset"]== "AE:08:62:24:F9:71"]
-#print(dfmath.head())
+print(dfmath.head())
 
 # select last 2 rows (before that the sendings wasn't aggregated)
 dfmath = dfmath.iloc[0:2,:]
-print(dfmath)
+print(dfmath.value)
 #print(type(dfmath))
 
 
 #TODO split values into columns
 
-"""
+
 #OPTION 1
 
 dfmath = dfmath.str.split(expand=True,)
 print(dfmath)
 # AttributeError: 'DataFrame' object has no attribute 'str'
-"""
+
 
 """
 #OPTION 2
@@ -49,7 +49,7 @@ dfmath = pd.Series(dfmath.value.values.flatten())
 print(dfmath)
 print(type(dfmath))
 
-dfmath = dfmath.str.split("/", expand=True)
+dfmath = dfmath.str.split(",", expand=True)
 print(dfmath)
 
 #nan value
