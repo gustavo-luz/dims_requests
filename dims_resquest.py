@@ -1,29 +1,8 @@
 import json
 import requests
 import pandas as pd
-import datetime
-from datetime import datetime
+import numpy as np
 
-#convert to iso
-data = "2017-01-01T12:30:55Z"
-# remove Z
-data = data[:-1]
-# find what is after 2nd ":"
-sep = ":"
-datasep = sep.join(data.split(sep)[2:])
-
-# if data has 2 digits after last : , do nothing
-if len(datasep) == 2:
-    data = data
-# else, add a 0
-else:
-    data = data[:17] + "0" + data[17:]
-
-print(data)
-data = datetime.fromisoformat(data)
-#data = data.split(" ") 
-print(data)
-"""
 class Date:
     def __init__(self, date):
         d = date.split('/')
@@ -31,20 +10,8 @@ class Date:
         self.month = int(d[1])
         self.year = int(d[2]) + 2000
         self.date = date
-"""
-
-#TODO arrumar pra data ISO , separar no lugar certo
-class Date:
-    def __init__(self, date):
-        d = date[:-1]
-        #d = datetime.fromisoformat(d)
-        d = date.split('T')
-        self.date = str(d[0])
-        self.time = str(d[1])
         
-
-
-"""        
+      
 class Time:
     def __init__(self, time):
         t = time.split(':')
@@ -53,7 +20,7 @@ class Time:
         self.second = int(t[2])
         self.time = time
         self.timeInSeconds = (self.hour * 3600) + (self.minute*60) + self.second
-"""       
+     
 class Info:                                                
     TOTAL_DISTANCE = 10.0 # Define value of TOTAL_DISTANCE constant based on container's total distance TODO find total distance 
                                                            
@@ -67,9 +34,9 @@ class Info:
         self.capacity = 1 - (self.distance / self.TOTAL_DISTANCE) #   Info.time.minute -> minute of recorded time 
                                                                   #   Info.time.second -> second of recorded time  
         self.battery = int(instancy[1])                           #   Info.time.time   -> Original "time" string
-        #self.date = Date(instancy[2])
-        self.date = str(instancy[2])                              #   Info.time.timeInSeconds -> Total time in seconds
-        #self.time = Time(instancy[3])                             #   
+        self.date = Date(instancy[2])
+        self.time = Time(instancy[3])                             #   Info.time.timeInSeconds -> Total time in seconds
+                                                                  #   
                                                                   #   Info.date.day    -> day of recorded time
                                                                   #   Info.date.month  -> month of recorded time
                                                                   #   Info.date.year   -> year of recorded time
@@ -99,30 +66,31 @@ dfmath = df[df["chipset"] == "AE:08:62:24:F9:71"]
 #print(dfmath.head())
 
 # Acquisitions outside this range are in a wrong format
-dfmath = dfmath.iloc[0:2] #[0:9]
+dfmath = dfmath.iloc[10:13]
 # UNCOMENT print(dfmath)
 
 # This lines splits values into columns
 value = dfmath['value'].array
-# UNCOMENTprint(value[0])
+print(type(value))
+print(value)
 
 # For each acquisition (This one takes 10th, 11th and 12th acquisitions) an Info object is created cointaining information in "value" column
+# TODO Modify array to be id,data,hour,battery,capacity
 for i in value:
-    print(i)
+    #print(i)
     info = Info(i)
-    print(info.date)
-    #print(info.distance)
-    #print(info.capacity)
-    #print(info.battery)
+    print(info.date.date)
+    print(info.time.time)
+    print(info.distance)
+    print(info.capacity)
+    print(info.battery)
  
 #send data and hour
 
 #EXPORTING TO CSV 
-# no unziping
-dfmath.to_csv('out.csv',index=False) 
+# TODO find how to export pandas.core.arrays.numpy_.PandasArray into csv
+# TODO send csv with every chipset desired
+#value.to_csv('out.csv')
+#value.DataFrame(np_array).to_csv('out.csv',index=False) 
+#value.tofile('foo.csv',sep=',',format='%10.5f')
 
-# if you want to zip it
-"""
-compression_opts = dict(method='zip',archive_name='out.csv')
-dfmath.to_csv('out.zip', index=False,compression=compression_opts)  
-"""
