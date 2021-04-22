@@ -19,6 +19,7 @@ deactivate
 
 ## TODO
 
+
 add more devices according to chipset
 create link between chipset and device (chipset x = id y)
 split values into columns

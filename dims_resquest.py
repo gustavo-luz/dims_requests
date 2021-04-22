@@ -2,6 +2,7 @@ import json
 import requests
 import pandas as pd
 import numpy as np
+import csv
 
 class Date:
     def __init__(self, date):
@@ -72,7 +73,7 @@ dfmath = dfmath.iloc[10:13]
 # This lines splits values into columns
 value = dfmath['value'].array
 print(type(value))
-print(value)
+print(value[0])
 
 # For each acquisition (This one takes 10th, 11th and 12th acquisitions) an Info object is created cointaining information in "value" column
 # TODO Modify array to be id,data,hour,battery,capacity
@@ -80,17 +81,21 @@ for i in value:
     #print(i)
     info = Info(i)
     print(info.date.date)
-    print(info.time.time)
-    print(info.distance)
-    print(info.capacity)
-    print(info.battery)
+    #print(info.time.time)
+    #print(info.distance)
+    #print(info.capacity)
+    #print(info.battery)
  
 #send data and hour
 
 #EXPORTING TO CSV 
-# TODO find how to export pandas.core.arrays.numpy_.PandasArray into csv
+# TODO fix exporting, its sending all data toguether
 # TODO send csv with every chipset desired
 #value.to_csv('out.csv')
+#back to pd dataframe and then csv
+df2 = pd.DataFrame(value)
+df2.to_csv("out.csv",index=False)
+
 #value.DataFrame(np_array).to_csv('out.csv',index=False) 
 #value.tofile('foo.csv',sep=',',format='%10.5f')
 
