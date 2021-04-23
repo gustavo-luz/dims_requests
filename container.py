@@ -5,7 +5,8 @@ import datetime
 # Class Conteiner holds information of the and handles manipulation of the data
 
 class Container:
-    _MAX_DISTANCE = 100.0
+    #TODO define final max distance
+    _MAX_DISTANCE = 160.0
     _DISTANCE_INDEX = 0
     _BATTERY_INDEX = 1
     _DATE_INDEX = 2
@@ -14,6 +15,7 @@ class Container:
     # The class dataFrame bring some interesting features. 
     # This function receives a Container object and returns a dataFrame back
     def to_DataFrame(self):
+        #TODO remove servicenumber? define final collumns
         d = {'chipset': [self.chipset], 'mac': [self.mac], 'serviceNumber': [self.service],
         'capacity': [self.capacity], 'battery': [self.battery], 
         'date': [self.date.strftime("%d/%m/%y")], 'time': [self.time.strftime("%H:%M:%S")]}
@@ -23,7 +25,7 @@ class Container:
     # 'info' is a dataFrame, that's why is possible to find values through it's keys
 
     def __init__(self, info):
-        # Splits the string in "value" into an array os strings
+        # Splits the string in "value" into an array of strings
         value_aux = info['value'][0].split(",")
         
         self.chipset = info['chipset']
