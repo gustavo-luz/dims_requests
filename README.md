@@ -18,7 +18,13 @@ deactivate
 
 
 ## TODO
+Como ainda haverão mais manipulações dos dados recebidos do heroku, uma biblioteca especifica para a classe container e outras que possam vir ajuda a não acumular muito código no arquivo principal.
 
+    Para a parte de indexação usando o chipset ou mac, pode ser interessante fazer um arquivo xlsx e no método construtor do container fazer a parte de checar e/ou editar o arquivo, talvez até fazer uma nova coluna no dataFrame que é gerado pelo container.cointainerToDataFrame() específica pro setor de emissão do dado, como Asa Norte ou Sudoeste. A vantagem do arquivo xlsx é que não precisaria editar no código ".py" caso alguma mudança como modificação ou adição de setores no futuro.
+
+    O formato do arquivo xlsx e csv gerado também precisaria ser definido, como se será preciso uma outra ordem de emissão, ou o que será preciso ser enviado.
+
+    Como as dimensões do container físico são padronizadas, seria interessante colocar as dimensões reais, principalmente depois de terem feito o código que envia os dados simulando o arduino. Da forma atual é fácil geral capacidade negativa.
 
 add more devices according to chipset
 create link between chipset and device (chipset x = id y)
@@ -32,34 +38,8 @@ export to google sheets
 # data goal
 [id,filling percentual,date,battery level]
 id -> linkink id with the chipset (future can be a key sent to dims)
-from millis (https://currentmillis.com/) to ISO
 data received + "%"
 data received converted to % 
 
 
 
-# infra, notes 
-alguns dos devices manda um post pro heroku e as vezes manda a aplicação serveless rodar
-
-conductor: evolução do cron, além de setar o tempo
-conductor workflow definition
-ele espera alguem dar um get no condutctor local host com o id da arvore criada
-entende como start e roda todo o diagrama
-no front define o q é um sucesso, um erro
-
-serveless é um transistor, ele so liga quando alguem manda
-no serveless coloca uma inteligencia
-qual foi a ultima hora q rodou 
-
-linux tem o cron
-
-criar um codigo que consulta o dado do dims e joga num google sheets
-dps começa a pensar em expor uma porta pra engatilhar
-
-concentrador no meio, fica olhando o heroku, usa o conector externo 
-
-vantagem do google sheets: manutenção, nome do google, plataforma gerenciada
-
-hardware sua responsabilidade, software tb como laboratorio
-tudo paas ou saas
-n tem responsabilidade como responsabilidade

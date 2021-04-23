@@ -1,6 +1,8 @@
 import json
 import requests
 import pandas as pd
+from container import Container
+       
 
 
 url = "http://uiot-dims.herokuapp.com/list/data"
@@ -9,9 +11,9 @@ r = requests.get(url)
 
 
 content = r.json()
-#CREATE DF
+# CREATE DF
 df = pd.DataFrame.from_dict(content)
-print(df.value)
+
 # some df observations
 #print(df.head)
 #df.info()
@@ -21,50 +23,39 @@ print(df.value)
 # TODO add more devices according to chipset
 # TODO create link between chipset and device (chipset x = id y)
 
-# CREATE dataframe matheus - CURRENT DEVICE 
-dfmath = df[df["chipset"]== "AE:08:62:24:F9:71"]
-print(dfmath.head())
 
-# select last 2 rows (before that the sendings wasn't aggregated)
-dfmath = dfmath.iloc[0:2,:]
-print(dfmath.value)
-#print(type(dfmath))
+# Another way is to call function "dfmath = df.where(df["chipset"] == "AE:08:62:24:F9:71")"
+# CREATE dataframe matheus - CURRENT DEVICE
+dfmath = df[df["chipset"] == "AE:08:62:24:F9:71"]
 
 
-#TODO split values into columns
+# Acquisitions with date and time format different than "21/04/20" and "0:11:20" will not work
+df1 = dfmath.iloc[10]
+df2 = dfmath.iloc[11]
 
 
-#OPTION 1
-
-dfmath = dfmath.str.split(expand=True,)
-print(dfmath)
-# AttributeError: 'DataFrame' object has no attribute 'str'
+# dfmath.values turns a data frame into an array for better management
+#If needed, here is the documentation https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.values.html
 
 
-"""
-#OPTION 2
+# Constructor method gets the array and returns a container object
+instancy = Container(df1)
+instancy2 = Container(df2)
+#print(instancy.value.battery)
 
-#convert to series
-dfmath = pd.Series(dfmath.value.values.flatten())
-print(dfmath)
-print(type(dfmath))
 
-dfmath = dfmath.str.split(",", expand=True)
-print(dfmath)
+# Pandas.DataFrame has a lot of useful methods, like "to_csv" and "to_excel".
+# This function gets the container object and returns a DataFrame object
+new_data_frame = instancy.to_DataFrame()
+new_data_frame = new_data_frame.append(instancy2.to_DataFrame())
+print(new_data_frame)
 
-#nan value
-"""
+# Exporting to a .csv file without zipping
+#new_data_frame.to_csv("CSV.csv", index = False)
+new_data_frame.to_excel("output.xlsx")
 
-#EXPORTING TO CSV 
-# no unziping
-dfmath.to_csv('out.csv',index=False) 
-
-# if you want to zip it
+# If you want to zip it
 """
 compression_opts = dict(method='zip',archive_name='out.csv')
 dfmath.to_csv('out.zip', index=False,compression=compression_opts)  
 """
-
-
-#TODO export to google sheets
-
