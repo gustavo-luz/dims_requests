@@ -1,8 +1,22 @@
 import json
 import requests
 import pandas as pd
+import gspread
+import pandas as pd
+
 from container import Container
-       
+from oauth2client.service_account import ServiceAccountCredentials
+
+#Auth Google Sheets       
+scope = ['https://spreadsheets.google.com/feeds']
+
+credentials = ServiceAccountCredentials.from_json_keyfile_name('mimetic-parity-311801-01a924f481ab.json', scope)
+
+gc = gspread.authorize(credentials)
+
+wks = gc.open_by_key('1XL8hE1ve3aFKS_Gu0fIwQhNN2BXPnBr0Xv7x9rkrDqY')
+
+worksheet = wks.get_worksheet(0)
 
 
 url = "http://uiot-dims.herokuapp.com/list/data"
@@ -56,6 +70,8 @@ new_data_frame = instancy.to_DataFrame()
 new_data_frame = new_data_frame.append(instancy2.to_DataFrame())
 new_data_frame = new_data_frame.append(instancy3.to_DataFrame())
 print(new_data_frame)
+
+worksheet.update([new_data_frame.columns.values.tolist()] + new_data_frame.values.tolist())
 
 # Exporting to a .csv file without zipping
 #new_data_frame.to_csv("CSV.csv", index = False)
