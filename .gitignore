@@ -136,3 +136,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+#Credentials
+mimetic-parity-311801-01a924f481ab.json
