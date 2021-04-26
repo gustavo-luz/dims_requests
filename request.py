@@ -2,7 +2,6 @@ import json
 import requests
 import pandas as pd
 import gspread
-import pandas as pd
 
 from container import Container
 from oauth2client.service_account import ServiceAccountCredentials
@@ -47,7 +46,7 @@ df2 = dfmath.iloc[11]
 
 
 dff1 = dffake.iloc[0]
-
+dff2 = dffake.iloc[1]
 #df3 = dffake.iloc[0:3]
 
 # dfmath.values turns a data frame into an array for better management
@@ -62,6 +61,8 @@ instancy2 = Container(df2)
 
 instancy3 = Container(dff1)
 
+instancy4 = Container(dff2)
+
 
 # Pandas.DataFrame has a lot of useful methods, like "to_csv" and "to_excel".
 # This function gets the container object and returns a DataFrame object
@@ -69,6 +70,7 @@ instancy3 = Container(dff1)
 new_data_frame = instancy.to_DataFrame()
 new_data_frame = new_data_frame.append(instancy2.to_DataFrame())
 new_data_frame = new_data_frame.append(instancy3.to_DataFrame())
+new_data_frame = new_data_frame.append(instancy4.to_DataFrame())
 print(new_data_frame)
 
 worksheet.update([new_data_frame.columns.values.tolist()] + new_data_frame.values.tolist())
