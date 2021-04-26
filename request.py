@@ -15,6 +15,10 @@ gc = gspread.authorize(credentials)
 
 wks = gc.open_by_key('1XL8hE1ve3aFKS_Gu0fIwQhNN2BXPnBr0Xv7x9rkrDqY')
 
+#TODO add more worksheets
+#1 PAGINA PRA SALVAR O ID LIGADO AO CHIPSET 
+#2 TODOS OS DADOS
+#3 ÚLTIMO DADO POR ID
 worksheet = wks.get_worksheet(0)
 
 
@@ -51,6 +55,7 @@ instancy_fake = Container.to_container(dffake)
 full_dataFrame = Container.array_to_dataFrame(instancy_math + instancy_fake)
 print(full_dataFrame)
 
+#TODO change update to 
 worksheet.update([full_dataFrame.columns.values.tolist()] + full_dataFrame.values.tolist())
 
 # Exporting to .csv and .xlsx files without zipping
