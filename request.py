@@ -36,47 +36,23 @@ df = pd.DataFrame.from_dict(content)
 dfmath = df[df["chipset"] == "AE:08:62:24:F9:71"]
 dffake = df[df["chipset"] == "GREEN DASHBOARD TEST"]
 
-
 # Acquisitions with date and time format different than "21/04/20" and "0:11:20" will not work
-
-# TODO create for loop for different dataframes
-df1 = dfmath.iloc[10]
-df2 = dfmath.iloc[11]
-# dfn = dfmath.iloc[n] 
+dfmath = dfmath.iloc[10:13]
 
 
-dff1 = dffake.iloc[0]
-dff2 = dffake.iloc[1]
-#df3 = dffake.iloc[0:3]
 
-# dfmath.values turns a data frame into an array for better management
-#If needed, here is the documentation https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.values.html
+# 'Container.to_container(df)' method gets the array and returns a container object
+instancy_math = Container.to_container(dfmath)
+instancy_fake = Container.to_container(dffake)
 
-
-# Constructor method gets the array and returns a container object
-# TODO create for loop to create different containers
-instancy = Container(df1)
-
-instancy2 = Container(df2)
-
-instancy3 = Container(dff1)
-
-instancy4 = Container(dff2)
-
-
+# Since both instancies are arrays, you can either give them separated or concatenated
 # Pandas.DataFrame has a lot of useful methods, like "to_csv" and "to_excel".
-# This function gets the container object and returns a DataFrame object
-# TODO create for loop to create different new dataframes
-new_data_frame = instancy.to_DataFrame()
-new_data_frame = new_data_frame.append(instancy2.to_DataFrame())
-new_data_frame = new_data_frame.append(instancy3.to_DataFrame())
-new_data_frame = new_data_frame.append(instancy4.to_DataFrame())
-print(new_data_frame)
+# This function gets the 'container' array and returns a DataFrame object
+full_dataFrame = Container.array_to_dataFrame(instancy_math + instancy_fake)
+print(full_dataFrame)
 
-worksheet.update([new_data_frame.columns.values.tolist()] + new_data_frame.values.tolist())
+worksheet.update([full_dataFrame.columns.values.tolist()] + full_dataFrame.values.tolist())
 
-# Exporting to a .csv file without zipping
-#new_data_frame.to_csv("CSV.csv", index = False)
-new_data_frame.to_excel("output.xlsx")
-new_data_frame.to_csv("output.csv")
-
+# Exporting to .csv and .xlsx files without zipping
+full_dataFrame.to_csv("output.csv", index = False)
+full_dataFrame.to_excel("output.xlsx")
