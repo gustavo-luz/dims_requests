@@ -60,4 +60,5 @@ print(new_data_frame)
 # Exporting to a .csv file without zipping
 #new_data_frame.to_csv("CSV.csv", index = False)
 new_data_frame.to_excel("output.xlsx")
+new_data_frame.to_csv("output.csv")
 
