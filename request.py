@@ -38,7 +38,7 @@ df = pd.DataFrame.from_dict(content)
 # Another way is to call function "dfmath = df.where(df["chipset"] == "AE:08:62:24:F9:71")"
 # CREATE dataframe matheus - CURRENT DEVICE
 dfmath = df[df["chipset"] == "AE:08:62:24:F9:71"]
-dffake = df[df["chipset"] == "GREEN DASHBOARD TEST"]
+dffake = df[df["chipset"] == "GREEN DASHBOARD TEST 2"]
 
 # Acquisitions with date and time format different than "21/04/20" and "0:11:20" will not work
 dfmath = dfmath.iloc[10:13]
@@ -55,9 +55,7 @@ instancy_fake = Container.to_container(dffake)
 full_dataFrame = Container.array_to_dataFrame(instancy_math + instancy_fake)
 print(full_dataFrame)
 
-#TODO change update to 
-worksheet.update([full_dataFrame.columns.values.tolist()] + full_dataFrame.values.tolist())
 
-# Exporting to .csv and .xlsx files without zipping
-full_dataFrame.to_csv("output.csv", index = False)
-full_dataFrame.to_excel("output.xlsx")
+#TODO change update to 
+#worksheet.update([full_dataFrame.columns.values.tolist()] + full_dataFrame.values.tolist())
+

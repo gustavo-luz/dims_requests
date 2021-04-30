@@ -40,7 +40,6 @@ class Container:
 
     # The class dataFrame bring some interesting features. 
     # This function receives a Container object and returns a dataFrame back
-    #TODO CONVERTER YY/MM/DD 
     def _container_to_DataFrame(self):
         d = {'chipset': [self.chipset], 'mac': [self.mac], 'serviceNumber': [self.service],
         'capacity': [self.capacity], 'battery': [self.battery], 
@@ -66,7 +65,7 @@ class Container:
 
         self.distance = float(value_aux[self._DISTANCE_INDEX])
         self.battery =  value_aux[self._BATTERY_INDEX]
-        self.date = datetime.datetime.strptime(value_aux[self._DATE_INDEX], "%d/%m/%y")
+        self.date = datetime.datetime.strptime(value_aux[self._DATE_INDEX], "%y/%m/%d")
         self.time = datetime.datetime.strptime(value_aux[self._TIME_INDEX], "%H:%M:%S")
 
         # Be aware of max distance. Values above '_MAX_DISTANCE' in distance will cause negative capacity.

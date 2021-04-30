@@ -33,7 +33,9 @@ prep data: convert cm to %, send only needed fields
 configure final csv
 export to google sheets
 
-
+## future
+check json before appending, check if there is every value
+add tags to the datasend
 
 # data goal
 [id,filling percentual,date,battery level]
