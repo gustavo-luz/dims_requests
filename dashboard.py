@@ -12,14 +12,6 @@ class Container:
     # Maximum container's height
     _MAX_DISTANCE = 160.0 
 
-    # These indexes are chosen from 'value' column in heroku's json posts
-    _DISTANCE_INDEX = 0
-    _BATTERY_INDEX = 1
-    _DATE_INDEX = 2
-    _TIME_INDEX = 3
-
-
-
     # It receives a 'dataFrame' object and returns an array of 'Container' objects with the same size 
     def to_container(df):
         array = []
@@ -39,7 +31,7 @@ class Container:
 
         for cont in array:
             df = df.append(cont._container_to_DataFrame(id_dictionary))
-            
+
         return df
 
 
@@ -64,7 +56,8 @@ class Container:
         'Location (Latitude, Longitude)' : row[_LOCATION_INDEX]}
 
         # This line updates the last record of a container
-        sheets.last_call_dictionary[row[_ID_INDEX]] = d
+        if row[_ID_INDEX] not in sheets.last_call_dictionary:
+            sheets.last_call_dictionary[row[_ID_INDEX]] = d
 
         return pd.DataFrame(data = d)
 
@@ -75,14 +68,14 @@ class Container:
 
         # Splits the string in "value" into an array os strings
         value_aux = dataFrame['value'][0].split(",")
-        
+
         self.chipset = dataFrame['chipset']
         self.mac = dataFrame['mac']
+        self.distance = float(dataFrame['Distance'])
+        self.battery =  dataFrame['Battery']
 
-        self.distance = float(value_aux[self._DISTANCE_INDEX])
-        self.battery =  value_aux[self._BATTERY_INDEX]
-        self.date = datetime.datetime.strptime(value_aux[self._DATE_INDEX], "%d/%m/%y")
-        self.time = datetime.datetime.strptime(value_aux[self._TIME_INDEX], "%H:%M:%S")
+        self.date = datetime.datetime.strptime(dataFrame['Date'], "%y/%m/%d")
+        self.time = datetime.datetime.strptime(dataFrame['Time'], "%H:%M:%S")
 
         # Be aware of max distance. Values above '_MAX_DISTANCE' in distance will cause negative capacity.
         self.capacity = round(100 * (1 - (self.distance / self._MAX_DISTANCE)))
@@ -91,7 +84,6 @@ class Container:
 
 # This class deals with google docs update and authentication and heroku's app request
 class Sheets():
-
 
 
     def sheets_authentication(self):
@@ -105,28 +97,61 @@ class Sheets():
 
 
     # Acquisitions with date and time format different than "21/04/20" and "0:11:20" will not work  
-    def heroku_to_dataframe(self, chipset):
+    def heroku_to_dataframe(self, tag):
         url = "http://uiot-dims.herokuapp.com/list/data"
         r = requests.get(url)
         content = r.json()
         df = pd.DataFrame.from_dict(content)
+        df = df[df['tag'] == tag]
 
-        # Another way is to call function "return df.where(df["chipset"] == chipset)"
-        return df[df["chipset"] == chipset]
+
+        distance = pd.Series([])
+        battery = pd.Series([])
+        date = pd.Series([])
+        time = pd.Series([])
+
+        df.insert(3, 'Distance', None, allow_duplicates = True)
+        df.insert(4, 'Battery', None, allow_duplicates = True)
+        df.insert(5, 'Date', None, allow_duplicates = True)
+        df.insert(6, 'Time', None, allow_duplicates = True)
+
+        for i in range(len(df)):
+            df['Distance'].iloc[i], df['Battery'].iloc[i], df['Date'].iloc[i], df['Time'].iloc[i] = df['value'].iloc[i][0].split(',')
+
+
+        df1 = df[df['Date'] > self.last_call_date['Date']]
+        df2 = df[df['Date'] == self.last_call_date['Date']]
+        df2 = df2[df2['Time'] > self.last_call_date['Time']]
+
+        return df1.append(df2)
 
 
 
     # This function gets information from id's page and turn into a useful dictionary to make easier manage other data manipulations
-    def _get_dictionary(self):
+    def _get_id_dictionary(self):
         id_dictionary = self.spreadsheet.worksheet('[Template] ID').get_all_records()
 
         final_dictionary = {}
         for d in id_dictionary:
             final_dictionary[d['mac']] = [d['ID'], d['Description'], d['Location (Latitude, Longitude)']]
-        
+
         return final_dictionary
 
+    def _define_last_call_time(self):
+        _LAST_RECORDS_PAGE_NAME = '[Template] Dados_Historicos'
 
+        last_records_worksheet = self.spreadsheet.worksheet(_LAST_RECORDS_PAGE_NAME)
+
+        df = pd.DataFrame(last_records_worksheet.get_all_records())
+
+        last_date_aux = df['Date (DD/MM/YY)'][0]
+        last_time = df['Time (HH/MM/SS)'][0]
+
+        last_date = last_date_aux[6:8] + last_date_aux[2:6] + last_date_aux[0:2]
+
+        dic = { 'Date' : last_date, 'Time' : last_time}
+
+        return dic
 
     # This function uploads information to google docs pages
     def upload_to_google(self, all_records_dataFrame):
@@ -143,13 +168,16 @@ class Sheets():
 
             last_records_worksheet.update(cell.address, df.values.tolist())
 
-        all_records_worksheet.append_rows(all_records_dataFrame.values.tolist())
+        all_records_worksheet.insert_rows(all_records_dataFrame.values.tolist(), 2)
 
 
 
     # The initializer method deals with authenticating google docs and inicializing necessary dictionaries
     def __init__(self):
-        self.spreadsheet = self.sheets_authentication()
-        self.id_dictionary = self._get_dictionary()
         self.last_call_dictionary = {}
-        
+
+        self.spreadsheet = self.sheets_authentication()
+
+        self.id_dictionary = self._get_id_dictionary()
+
+        self.last_call_date = self._define_last_call_time()
