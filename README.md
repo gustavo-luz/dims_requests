@@ -4,16 +4,18 @@ clone this repository and enter it
 git clone https://github.com/gustavo-luz/dims_requests
 cd dims_requests
 
-## TODO
+# dashboard.py
+Dashboard will handle authentication of google spreadsheets and heroku's app and manage it's data based on pandas dataframes.
+Necessary to run main project's program
 
-* [ ] Mudar a forma de checar as tags para a nativa da documentação do middleware
-* [ ] Mudar a forma de garantir que não registre 2 vezes a mesma instância
-  atualmente ele confere a partir do tempo, o que pode gerar bugs
-  obs: código não funcionará para macs não registrados
+# request.py
+Request will use dashboard's function to format data and upload it to google spreadsheets.
+It is the main project's program
 
-## future
+# heroku.py
+Since real containers are not implemented yet, 'heroku.py' will hold functions regard simulating those container's posts.
+Not necessary to run main project's program, just a useful tool while physical containers are not implemented yet.
 
-check json before appending, check if there is every value
-add tags to the datasend of every device
-
-create venv with requirements and add instructions with requirements
+# presentation.py
+Presentation will run 'heroku.py' functions and 'request.py' to upload simulated data.
+Not necessary to run main project's program, just a useful tool while physical containers are not implemented yet.
