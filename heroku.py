@@ -39,12 +39,12 @@ class Heroku:
 
         later_value = '[    \\"' + later_distance + ','+ later_battery + ',' + date_str + ',' + time_str + '\\"  ]}"'
 
-        return 'curl -X POST "http://uiot-dims.herokuapp.com/data" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \\"tags\\": [      \\"iisc\\"    ],  \\"chipset\\": \\"' + chipset + '\\",  \\"mac\\": \\"' + mac + '\\",  \\"serviceNumber\\": 1,  \\"value\\": ' + later_value
+        return 'curl -X POST "http://dims.uiot.redes.unb.br/data" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \\"tags\\": [      \\"iisc\\"    ],  \\"chipset\\": \\"' + chipset + '\\",  \\"mac\\": \\"' + mac + '\\",  \\"serviceNumber\\": 1,  \\"value\\": ' + later_value
 
 
     def _update_heroku(self, chipset):
 
-        url = "http://uiot-dims.herokuapp.com/list/data"
+        url = "http://dims.uiot.redes.unb.br//list/data"
         r = requests.get(url)
         content = r.json()
         df = pd.DataFrame.from_dict(content)
@@ -65,6 +65,3 @@ class Heroku:
 
     def run_main():
         runpy.run_path('request.py')
-
-
-

@@ -1,3 +1,4 @@
+
 import requests
 import pandas as pd
 import datetime
@@ -21,7 +22,7 @@ class Sheets():
 
     # Acquisitions with respectively date and time format different than "21/04/20" and "0:11:20" will not work  
     def heroku_to_dataframe(self, tag_list):
-        url = "http://uiot-dims.herokuapp.com/list/data"
+        url = "http://dims.uiot.redes.unb.br/list/data"
         r = requests.get(url)
         content = r.json()
         df = pd.DataFrame.from_dict(content)

@@ -1,4 +1,4 @@
-# dims_requests
+
 
 clone this repository and enter it
 git clone https://github.com/gustavo-luz/dims_requests
@@ -15,6 +15,7 @@ It is the main project's program
 # heroku.py
 Since real containers are not implemented yet, 'heroku.py' will hold functions regard simulating those container's posts.
 Not necessary to run main project's program, just a useful tool while physical containers are not implemented yet.
+
 
 # presentation.py
 Presentation will run 'heroku.py' functions and 'request.py' to upload simulated data.
