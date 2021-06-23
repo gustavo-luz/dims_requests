@@ -19,7 +19,6 @@ class Sheets():
         return gc.open_by_key('1XL8hE1ve3aFKS_Gu0fIwQhNN2BXPnBr0Xv7x9rkrDqY')
 
 
-
     # Acquisitions with respectively date and time format different than "21/04/20" and "0:11:20" will not work  
     def heroku_to_dataframe(self, tag_list):
         url = "http://dims.uiot.redes.unb.br/list/data"
@@ -30,6 +29,8 @@ class Sheets():
         # These two lines filter the given dataframe based on "tags" column
         mask = df['tags'].apply(pd.Series).isin(tag_list).sum(axis=1) > 0
         df = df[(mask)]
+
+        final_df = pd.DataFrame()
         
 
         distance = pd.Series([])
@@ -42,15 +43,26 @@ class Sheets():
         df.insert(5, 'Date', None, allow_duplicates = True)
         df.insert(6, 'Time', None, allow_duplicates = True)
 
+
         #It creates new columns based on column "values" for better menaging data
         for i in range(len(df)):
 
+            instance_mac = df['mac'].iloc[i]
+
             # This condition makes shure that only registered container's information will be uploaded.
-            if df['mac'][i] not in self.id_dictionary:
-                print('container not registered, please add in worksheet "[Template] ID"')
+            if instance_mac not in self.id_dictionary:
+                print('Mac ' + instance_mac + ' not registered, please add in worksheet "[Template] ID"')
                 continue
             
-            df['Distance'].iloc[i], df['Battery'].iloc[i], df['Date'].iloc[i], df['Time'].iloc[i] = df['value'].iloc[i][0].split(',')
+            value_array = df['value'].iloc[i][0].split(',')
+
+            # 'value' column has to follow the format: "Distance,Battery,MM/DD/YY,HH:MM:SS"
+            if  len(value_array)  != 4:
+                print('"Value" component error in ' + i + 'position' + '. Wrong sitaxe')
+                continue
+
+
+            df['Distance'].iloc[i], df['Battery'].iloc[i], df['Date'].iloc[i], df['Time'].iloc[i] = value_array
 
             id = self.id_dictionary[df['mac'].iloc[i]][0]
             recent_call = self.id_recent_call_dictionary[id]
@@ -59,8 +71,13 @@ class Sheets():
             if(df['Date'].iloc[i] == recent_call[0] and df['Time'].iloc[i] == recent_call[1]):
                 df = df.iloc[:i]
                 break
+            
+            d = {'chipset' : df['chipset'].iloc[i], 'Mac' : df['mac'].iloc[i], 'Distance' : df['Distance'].iloc[i], 'Battery' : df['Distance'].iloc[i], 'Date' : df['Date'].iloc[i], 'Time' : df['Time'].iloc[i]}
+            final_df = final_df.append(pd.DataFrame(data = d, index = [0]))
+        
+        #print(final_df)
 
-        return df
+        return final_df
 
 
 
