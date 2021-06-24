@@ -139,7 +139,6 @@ class Sheets():
             capacity = 1 - (float(df['Distance'].iloc[i]) / _MAX_DISTANCE)
             battery = float(df['Battery'].iloc[i])/100
             date = df['Date'].iloc[i]
-            date = date[6:8] + date[2:6] + date[0:2]
             time = df['Time'].iloc[i]
 
             # d is a dictionary where strings are indexe's and it's respective values
