@@ -24,7 +24,7 @@ class Heroku:
         else:
             later_battery = str(last_battery - 1)
 
-        date = datetime.datetime.strptime(last_date, "%y/%m/%d")
+        date = datetime.datetime.strptime(last_date, "%m/%d/%y")
         time = datetime.datetime.strptime(last_time, "%H:%M:%S")
 
         if(last_time > '23:29:59'):
@@ -34,7 +34,7 @@ class Heroku:
 
         later_time = time + datetime.timedelta(minutes = 30)
 
-        date_str = later_date.strftime("%y/%m/%d")
+        date_str = later_date.strftime("%m/%d/%y")
         time_str = later_time.strftime("%H:%M:%S")
 
         later_value = '[    \\"' + later_distance + ','+ later_battery + ',' + date_str + ',' + time_str + '\\"  ]}"'
