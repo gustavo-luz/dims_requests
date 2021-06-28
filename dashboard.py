@@ -47,6 +47,7 @@ class Sheets():
         #It creates new columns based on column "values" for better menaging data
         for i in range(len(df)):
 
+            # Instance_mac will hold the mac number of currently instancy of the dataFrame. 
             instance_mac = df['mac'].iloc[i]
 
             # This condition makes shure that only registered container's information will be uploaded.
