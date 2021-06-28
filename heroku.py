@@ -56,7 +56,7 @@ class Heroku:
         cmd_str = self._define_cmd(last_value, chipset, mac)
 
         print(cmd_str)
-        os.system(cmd_str)
+        #os.system(cmd_str)
 
     def update_heroku(self, chipsets, n = 1):
         for i in range(n):
