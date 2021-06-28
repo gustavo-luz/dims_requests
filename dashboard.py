@@ -145,7 +145,7 @@ class Sheets():
             d = {'ID' : ID, 'Description': description, 'Capacity': capacity, 'Battery' : battery, 'Date (DD/MM/YY)': date,
             'Time (HH/MM/SS)' : time, 'Location (Latitude, Longitude)' : location}
 
-            # df_aux is a dataFrame based on dictionary 'd' 
+            # df_aux is a dataFrame based on dictionary 'd'
             df_aux = pd.DataFrame(data = d, index = [0])
 
             final_dataframe = final_dataframe.append(df_aux)
