@@ -19,6 +19,41 @@ class Sheets():
         return gc.open_by_key('1XL8hE1ve3aFKS_Gu0fIwQhNN2BXPnBr0Xv7x9rkrDqY')
 
 
+    def data_validation(self, df):
+
+        is_valid = True
+
+        # Instance_mac will hold the mac number of currently instancy of the dataFrame. 
+        instance_mac = df['mac'].iloc[i]
+
+        # Only registered container's information must be uploaded.
+        if instance_mac not in self.id_dictionary:
+            print('Invalid value: Mac ' + instance_mac + ' not registered, please add in worksheet "[Template] ID"')
+            is_valid = False
+            
+        value_array = df['value'].iloc[i][0].split(',')
+
+        # 'value' column has to follow the format: "Distance,Battery,MM/DD/YY,HH:MM:SS"
+        if  len(value_array)  != 4:
+            print('Invalid sintaxe: "Value" format must be "Distance,Battery,MM/DD/YY,HH:MM:SS"')
+            is_valid = False
+
+
+        df['Distance'].iloc[i], df['Battery'].iloc[i], df['Date'].iloc[i], df['Time'].iloc[i] = value_array
+
+        # 'Distance' validation
+        if(int(df['Distance'].iloc[i]) > self._MAX_DISTANCE):
+            print('Invalid value: Maximum "Distance" value must be ' + str(self._MAX_DISTANCE) + ' cm.')
+            is_valid = False
+        
+        if is_valid == False:
+            print('Date and Time of error: ' +  df['Date'].iloc[i], + ' ' + df['Time'].iloc[i])
+        
+        return is_valid
+
+
+
+
     # Acquisitions with respectively date and time format different than "21/04/20" and "0:11:20" will not work  
     def heroku_to_dataframe(self, tag_list):
         url = "http://dims.uiot.redes.unb.br/list/data"
@@ -64,6 +99,10 @@ class Sheets():
 
 
             df['Distance'].iloc[i], df['Battery'].iloc[i], df['Date'].iloc[i], df['Time'].iloc[i] = value_array
+
+            # 'Distance' validation
+            if(int(df['Distance'].iloc[i]) > self._MAX_DISTANCE):
+                print()
 
             id = self.id_dictionary[df['mac'].iloc[i]][0]
             recent_call = self.id_recent_call_dictionary[id]
@@ -127,8 +166,7 @@ class Sheets():
 
 
     # Returns a new dataFrame with data format used in spreadsheets
-    def format_data_frame(self, df):
-        _MAX_DISTANCE = 160.0 
+    def format_data_frame(self, df): 
 
         # An empty dataFrame
         final_dataframe = pd.DataFrame()
@@ -137,7 +175,7 @@ class Sheets():
             
             # These variables manage information that will be used in the final dataframe
             ID, description, location = self.id_dictionary[df['mac'].iloc[i]]
-            capacity = 1 - (float(df['Distance'].iloc[i]) / _MAX_DISTANCE)
+            capacity = 1 - (float(df['Distance'].iloc[i]) / self._MAX_DISTANCE)
             battery = float(df['Battery'].iloc[i])/100
             date = df['Date'].iloc[i]
             time = df['Time'].iloc[i]
@@ -161,6 +199,8 @@ class Sheets():
 
     # The initializer method deals with authenticating google docs and inicializing necessary dictionaries
     def __init__(self):
+        self._MAX_DISTANCE = 160.0
+
         # This dictionary handles last recorded data from the containers, that will be uploaded to worksheet '[Template] Dados_Recentes'
         self.last_call_dictionary = {}               
 
