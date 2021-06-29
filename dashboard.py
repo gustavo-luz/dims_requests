@@ -14,9 +14,52 @@ class Sheets():
 
         scope = ['https://spreadsheets.google.com/feeds']
 
-        credentials = ServiceAccountCredentials.from_json_keyfile_name('mimetic-parity-311801-01a924f481ab.json', scope)
+        authentication_document = 'mimetic-parity-311801-01a924f481ab.json'
+        authentication_document = r'C:\Users\User\OneDrive\Área de Trabalho\UIoT\DashBoardAntigo\mimetic-parity-311801-01a924f481ab.json'
+
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(authentication_document, scope)
         gc = gspread.authorize(credentials)
         return gc.open_by_key('1XL8hE1ve3aFKS_Gu0fIwQhNN2BXPnBr0Xv7x9rkrDqY')
+
+
+    def data_validation(self, df):
+
+        # Instance_mac will hold the mac number of currently instancy of the dataFrame. 
+        instance_mac = df['mac']
+
+        # Only registered container's information must be uploaded.
+        if instance_mac not in self.id_dictionary:
+            print('Invalid value: Mac ' + instance_mac + ' not registered, please add in worksheet "[Template] ID"')
+            print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
+            return False
+
+            
+        value_array = df['value'][0].split(',')
+
+        # 'value' column has to follow the format: "Distance,Battery,MM/DD/YY,HH:MM:SS"
+        if  len(value_array)  != 4:
+            print('Invalid sintaxe: "Value" format must be "Distance,Battery,MM/DD/YY,HH:MM:SS"')
+            return False
+
+
+        df['Distance'], df['Battery'], df['Date'], df['Time'] = value_array
+
+        # 'Distance' validation
+        if(int(df['Distance']) > self._MAX_DISTANCE):
+            print('Invalid value: Maximum "Distance" value must be ' + str(self._MAX_DISTANCE) + ' cm.')
+            print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
+            return False
+
+        # 'Battery' validation
+        if(int(df['Battery']) > 100):
+            print('Invalid value: Maximum "Battery" value must be 100')
+            print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
+            return False
+        
+        
+        return True
+
+
 
 
     # Acquisitions with respectively date and time format different than "21/04/20" and "0:11:20" will not work  
@@ -47,26 +90,13 @@ class Sheets():
         #It creates new columns based on column "values" for better menaging data
         for i in range(len(df)):
 
-            instance_mac = df['mac'].iloc[i]
-
-            # This condition makes shure that only registered container's information will be uploaded.
-            if instance_mac not in self.id_dictionary:
-                print('Mac ' + instance_mac + ' not registered, please add in worksheet "[Template] ID"')
-                continue
-            
-            value_array = df['value'].iloc[i][0].split(',')
-
-            # 'value' column has to follow the format: "Distance,Battery,MM/DD/YY,HH:MM:SS"
-            if  len(value_array)  != 4:
-                print('"Value" component error in ' + i + 'position' + '. Wrong sitaxe')
+            if not self.data_validation(df.iloc[i]):
                 continue
 
-
-            df['Distance'].iloc[i], df['Battery'].iloc[i], df['Date'].iloc[i], df['Time'].iloc[i] = value_array
+            df['Distance'].iloc[i], df['Battery'].iloc[i], df['Date'].iloc[i], df['Time'].iloc[i] = df['value'].iloc[i][0].split(',')
 
             id = self.id_dictionary[df['mac'].iloc[i]][0]
             recent_call = self.id_recent_call_dictionary[id]
-
 
             if(df['Date'].iloc[i] == recent_call[0] and df['Time'].iloc[i] == recent_call[1]):
                 df = df.iloc[:i]
@@ -75,8 +105,6 @@ class Sheets():
             d = {'chipset' : df['chipset'].iloc[i], 'Mac' : df['mac'].iloc[i], 'Distance' : df['Distance'].iloc[i], 'Battery' : df['Distance'].iloc[i], 'Date' : df['Date'].iloc[i], 'Time' : df['Time'].iloc[i]}
             final_df = final_df.append(pd.DataFrame(data = d, index = [0]))
         
-        #print(final_df)
-
         return final_df
 
 
@@ -99,8 +127,7 @@ class Sheets():
 
         final_dictionary = {}
         for d in initial_dictionary:
-            date = d['Date (DD/MM/YY)'][6:8] + d['Date (DD/MM/YY)'][2:6] + d['Date (DD/MM/YY)'][0:2]
-            final_dictionary[d['ID']] = [date, d['Time (HH/MM/SS)']]
+            final_dictionary[d['ID']] = [d['Date (DD/MM/YY)'], d['Time (HH/MM/SS)']]
         
         return final_dictionary
 
@@ -126,17 +153,16 @@ class Sheets():
 
 
     # Returns a new dataFrame with data format used in spreadsheets
-    def format_data_frame(self, df):
-        _MAX_DISTANCE = 160.0 
+    def format_data_frame(self, df): 
 
         # An empty dataFrame
         final_dataframe = pd.DataFrame()
 
         for i in range(len(df)):
-            
+
             # These variables manage information that will be used in the final dataframe
-            ID, description, location = self.id_dictionary[df['mac'].iloc[i]]
-            capacity = 1 - (float(df['Distance'].iloc[i]) / _MAX_DISTANCE)
+            ID, description, location = self.id_dictionary[df['Mac'].iloc[i]]
+            capacity = 1 - (float(df['Distance'].iloc[i]) / self._MAX_DISTANCE)
             battery = float(df['Battery'].iloc[i])/100
             date = df['Date'].iloc[i]
             time = df['Time'].iloc[i]
@@ -160,6 +186,8 @@ class Sheets():
 
     # The initializer method deals with authenticating google docs and inicializing necessary dictionaries
     def __init__(self):
+        self._MAX_DISTANCE = 160.0
+
         # This dictionary handles last recorded data from the containers, that will be uploaded to worksheet '[Template] Dados_Recentes'
         self.last_call_dictionary = {}               
 
