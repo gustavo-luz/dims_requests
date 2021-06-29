@@ -15,7 +15,6 @@ class Sheets():
         scope = ['https://spreadsheets.google.com/feeds']
 
         authentication_document = 'mimetic-parity-311801-01a924f481ab.json'
-        authentication_document = r'C:\Users\User\OneDrive\Área de Trabalho\UIoT\DashBoardAntigo\mimetic-parity-311801-01a924f481ab.json'
 
         credentials = ServiceAccountCredentials.from_json_keyfile_name(authentication_document, scope)
         gc = gspread.authorize(credentials)
