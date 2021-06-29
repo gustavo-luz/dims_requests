@@ -101,7 +101,7 @@ class Sheets():
                 df = df.iloc[:i]
                 break
             
-            d = {'chipset' : df['chipset'].iloc[i], 'Mac' : df['mac'].iloc[i], 'Distance' : df['Distance'].iloc[i], 'Battery' : df['Distance'].iloc[i], 'Date' : df['Date'].iloc[i], 'Time' : df['Time'].iloc[i]}
+            d = {'chipset' : df['chipset'].iloc[i], 'Mac' : df['mac'].iloc[i], 'Distance' : df['Distance'].iloc[i], 'Battery' : df['Battery'].iloc[i], 'Date' : df['Date'].iloc[i], 'Time' : df['Time'].iloc[i]}
             final_df = final_df.append(pd.DataFrame(data = d, index = [0]))
         
         return final_df
