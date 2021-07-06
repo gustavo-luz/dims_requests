@@ -4,6 +4,9 @@ clone this repository and enter it
 git clone https://github.com/gustavo-luz/dims_requests
 cd dims_requests
 
+Docker build - sudo docker build -t dims_requests:latest .
+Docker run - sudo docker run -d -it --name dims_requests --rm dims_requests:latest
+
 # dashboard.py
 Dashboard will handle authentication of google spreadsheets and heroku's app and manage it's data based on pandas dataframes.
 Necessary to run main project's program
