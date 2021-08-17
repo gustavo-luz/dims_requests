@@ -44,17 +44,16 @@ class Sheets():
         df['Distance'], df['Battery'], df['Date'], df['Time'] = value_array
 
         # 'Distance' validation
-        if(int(df['Distance']) > self._MAX_DISTANCE):
+        if int(df['Distance']) > self._MAX_DISTANCE or int(df['Distance']) <= 0:
             print('Invalid value: Maximum "Distance" value must be ' + str(self._MAX_DISTANCE) + ' cm.')
             print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
             return False
 
         # 'Battery' validation
-        if(int(df['Battery']) > 100):
+        if int(df['Battery']) > 100 or int(df["Battery"] < 0):
             print('Invalid value: Maximum "Battery" value must be 100')
             print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
             return False
-        
         
         return True
 
