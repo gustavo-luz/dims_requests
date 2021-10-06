@@ -33,40 +33,52 @@ class Sheets():
             print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
             return False
 
-        
-        value_array = df['value'][0].split(',')
-        data_array = df['time']
-        time_array = data_array[11:-7]
-        data_array = data_array[:-7]
-        data_array = datetime.strptime(data_array, '%Y-%m-%dT%H:%M:%S')
-        data_array = data_array.strftime("%m/%d/%y")
-        print(data_array)
 
-        print(time_array)
-
-
-        # 'value' column has to follow the format: "Distance,Battery,MM/DD/YY,HH:MM:SS"
-        if  len(value_array)  != 4:
-            print('Invalid sintaxe: "Value" format must be "Distance,Battery,MM/DD/YY,HH:MM:SS"')
-            return False
+        if isinstance(df['time'],str):
+            #print(df)
+            value_array = df['value'][0].split(',')
+            #print(value_array)
+            date_array = df['time']
+           # print(date_array)
+            time_array = date_array[11:-7]
+            #print(time_array)
+            date_array = date_array[:-7]
+            date_array = datetime.strptime(date_array, '%Y-%m-%dT%H:%M:%S')
+            #print(date_array)
+            date_array = date_array.strftime("%m/%d/%y")
+            print(value_array,date_array,time_array)
 
 
-        df['Distance'], df['Battery'], df['Date'], df['Time'] = value_array
 
-        # 'Distance' validation
-        if int(df['Distance']) > self._MAX_DISTANCE or int(df['Distance']) <= 0:
-            print('Invalid value: Maximum "Distance" value must be ' + str(self._MAX_DISTANCE) + ' cm.')
-            print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
-            return False
+            # 'value' column has to follow the format: "Distance,Battery,MM/DD/YY,HH:MM:SS"
+            if  len(value_array)  != 2:
+                print('Invalid sintaxe: "Value" format must be "Distance,Battery,MM/DD/YY,HH:MM:SS"')
+                return False
 
-        # 'Battery' validation
-        if int(df['Battery']) > 100 or int(df["Battery"] < 0):
-            print('Invalid value: Maximum "Battery" value must be 100')
-            print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
-            return False
-        
-        return True
+            #print(type(df['Distance']))
+            #print(df['Date'])
+            df['Distance'], df['Battery'] = value_array
+            df['Date'] = date_array
+            df['Time'] = time_array
 
+            print(value_array,date_array,time_array)
+
+            """
+            #data_array, time_array
+            # 'Distance' validation
+            if int(df['Distance']) > self._MAX_DISTANCE or int(df['Distance']) <= 0:
+                print('Invalid value: Maximum "Distance" value must be ' + str(self._MAX_DISTANCE) + ' cm.')
+                print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
+                return False
+
+            # 'Battery' validation
+            if int(df['Battery']) > 100 or int(df["Battery"] < 0):
+                print('Invalid value: Maximum "Battery" value must be 100')
+                print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
+                return False
+            
+            return True
+            """
 
 
 
