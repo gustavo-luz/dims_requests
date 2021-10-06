@@ -2,6 +2,7 @@
 import requests
 import pandas as pd
 import datetime
+from datetime import datetime
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -32,8 +33,17 @@ class Sheets():
             print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
             return False
 
-            
+        
         value_array = df['value'][0].split(',')
+        data_array = df['time']
+        time_array = data_array[11:-7]
+        data_array = data_array[:-7]
+        data_array = datetime.strptime(data_array, '%Y-%m-%dT%H:%M:%S')
+        data_array = data_array.strftime("%m/%d/%y")
+        print(data_array)
+
+        print(time_array)
+
 
         # 'value' column has to follow the format: "Distance,Battery,MM/DD/YY,HH:MM:SS"
         if  len(value_array)  != 4:
@@ -185,7 +195,7 @@ class Sheets():
     # The initializer method deals with authenticating google docs and inicializing necessary dictionaries
     def __init__(self):
         self._MAX_DISTANCE = 160.0
-
+        #self.data_validation()
         # This dictionary handles last recorded data from the containers, that will be uploaded to worksheet '[Template] Dados_Recentes'
         self.last_call_dictionary = {}               
 
