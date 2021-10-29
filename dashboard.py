@@ -31,54 +31,60 @@ class Sheets():
         if instance_mac not in self.id_dictionary:
             print('Invalid value: Mac ' + instance_mac + ' not registered, please add in worksheet "[Template] ID"')
             print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
+
+
+            # VER DPS
+
+
+            return False
+
+        value_array = df['value'][0].split(',')
+
+        # 'value' column has to follow the format: "Distance,Battery"
+        if  len(value_array)  != 2:
+            print(value_array)
+            print('Invalid sintaxe: "Value" format must be "Distance,Battery"')
             return False
 
 
-        if isinstance(df['time'],str):
-            #print(df)
-            value_array = df['value'][0].split(',')
-            #print(value_array)
-            date_array = df['time']
-           # print(date_array)
-            time_array = date_array[11:-7]
-            #print(time_array)
-            date_array = date_array[:-7]
-            date_array = datetime.strptime(date_array, '%Y-%m-%dT%H:%M:%S')
-            #print(date_array)
-            date_array = date_array.strftime("%m/%d/%y")
-            print(value_array,date_array,time_array)
+        if len(df['time'])  == 26:
 
+            timestamp_array = df['time']
+            timestamp_array = timestamp_array[:-7]
 
+            timestamp = datetime.strptime(timestamp_array, '%Y-%m-%dT%H:%M:%S')
 
-            # 'value' column has to follow the format: "Distance,Battery,MM/DD/YY,HH:MM:SS"
-            if  len(value_array)  != 2:
-                print('Invalid sintaxe: "Value" format must be "Distance,Battery,MM/DD/YY,HH:MM:SS"')
-                return False
+            date_array = timestamp.strftime("%m/%d/%y")
+            time_array = timestamp.strftime("%H:%M:%S")
 
-            #print(type(df['Distance']))
-            #print(df['Date'])
+            print(timestamp_array,date_array,time_array)    
+
             df['Distance'], df['Battery'] = value_array
             df['Date'] = date_array
             df['Time'] = time_array
 
-            print(value_array,date_array,time_array)
 
-            """
-            #data_array, time_array
+
+            # REST OF VALIDATION CLOSED FOR REPAIRS, PLEASE CONTACT MATHEUS. IS HIS FAULT
+            return True
+
             # 'Distance' validation
             if int(df['Distance']) > self._MAX_DISTANCE or int(df['Distance']) <= 0:
                 print('Invalid value: Maximum "Distance" value must be ' + str(self._MAX_DISTANCE) + ' cm.')
                 print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
                 return False
 
+
             # 'Battery' validation
-            if int(df['Battery']) > 100 or int(df["Battery"] < 0):
+            if int(df['Battery']) > 100 or int(df["Battery"]) < 0:
                 print('Invalid value: Maximum "Battery" value must be 100')
                 print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
                 return False
             
             return True
-            """
+        else:
+            print("Invalid timestamp")
+
 
 
 
@@ -113,7 +119,16 @@ class Sheets():
             if not self.data_validation(df.iloc[i]):
                 continue
 
-            df['Distance'].iloc[i], df['Battery'].iloc[i], df['Date'].iloc[i], df['Time'].iloc[i] = df['value'].iloc[i][0].split(',')
+            timestamp_array = df['time'][i]
+            timestamp_array = timestamp_array[:-7]
+
+            timestamp = datetime.strptime(timestamp_array, '%Y-%m-%dT%H:%M:%S')
+
+            df['Distance'].iloc[i], df['Battery'].iloc[i] = df['value'].iloc[i][0].split(',')
+            df['Date'].iloc[i] = timestamp.strftime("%m/%d/%y")
+            df['Time'].iloc[i] = timestamp.strftime("%H:%M:%S")
+
+            df['Distance'].iloc[i], df['Battery'].iloc[i] = df['value'].iloc[i][0].split(',')
 
             id = self.id_dictionary[df['mac'].iloc[i]][0]
             recent_call = self.id_recent_call_dictionary[id]
