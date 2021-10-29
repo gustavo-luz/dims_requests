@@ -16,4 +16,4 @@ final_df = sheets.format_data_frame(df)
 print(final_df)
 
 # Takes the formated dataframe and posts on google spreadsheets
-#sheets.upload_to_google(final_df)
+sheets.upload_to_google(final_df)
