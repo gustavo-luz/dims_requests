@@ -64,10 +64,6 @@ class Sheets():
             df['Time'] = time_array
 
 
-
-            # REST OF VALIDATION CLOSED FOR REPAIRS, PLEASE CONTACT MATHEUS. IS HIS FAULT
-            return True
-
             # 'Distance' validation
             if int(df['Distance']) > self._MAX_DISTANCE or int(df['Distance']) <= 0:
                 print('Invalid value: Maximum "Distance" value must be ' + str(self._MAX_DISTANCE) + ' cm.')
@@ -82,6 +78,7 @@ class Sheets():
                 return False
             
             return True
+            
         else:
             print("Invalid timestamp")
 
