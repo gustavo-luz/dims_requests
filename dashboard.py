@@ -78,7 +78,6 @@ class Sheets():
                 return False
             
             return True
-            
         else:
             print("Invalid timestamp")
 
@@ -110,14 +109,15 @@ class Sheets():
         df.insert(6, 'Time', None, allow_duplicates = True)
 
 
+        print (df)
         #It creates new columns based on column "values" for better menaging data
         for i in range(len(df)):
 
             if not self.data_validation(df.iloc[i]):
                 continue
 
-            timestamp_array = df['time'][i]
-            timestamp_array = timestamp_array[:-7]
+            timestamp_array = df['time'].iloc[i]
+            timestamp_array = timestamp_array[:18]
 
             timestamp = datetime.strptime(timestamp_array, '%Y-%m-%dT%H:%M:%S')
 
