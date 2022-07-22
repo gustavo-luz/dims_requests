@@ -1,12 +1,14 @@
 
+from operator import index
 import requests
 import pandas as pd
 import datetime
 from datetime import datetime
+import numpy as np
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-
+import ast
 
 class Sheets():
 
@@ -21,72 +23,48 @@ class Sheets():
         gc = gspread.authorize(credentials)
         return gc.open_by_key('1XL8hE1ve3aFKS_Gu0fIwQhNN2BXPnBr0Xv7x9rkrDqY')
 
+    def filter_df_invalid_data(self,df):
 
-    def data_validation(self, df):
+        for i in range(len(df)):
+            try:
 
-        # Instance_mac will hold the mac number of currently instancy of the dataFrame. 
-        instance_mac = df['mac']
-
-        # Only registered container's information must be uploaded.
-        if instance_mac not in self.id_dictionary:
-            print('Invalid value: Mac ' + instance_mac + ' not registered, please add in worksheet "[Template] ID"')
-            print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
-
-
-            # VER DPS
-
-
-            return False
-
-        value_array = df['value'][0].split(',')
-
-        # 'value' column has to follow the format: "Distance,Battery"
-        if  len(value_array)  != 2:
-            print(value_array)
-            print('Invalid sintaxe: "Value" format must be "Distance,Battery"')
-            return False
+                # 'Distance' validation
+                if int(float(df['Distance'].iloc[i])) > self._MAX_DISTANCE or int(float(df['Distance'].iloc[i])) <= 0:
+                    print('Invalid value: Maximum "Distance" value must be ' + str(self._MAX_DISTANCE) + ' cm. Not: '+ df['Distance'].iloc[i] )
+                    print('Date and Time of error: ' +  df['Date'][i] + ' ' + df['Time'][i])
+                    print(f'dropping row: {i}')
+                    df.loc[i] = np.nan
+                    
 
 
-        if len(df['time'])  == 26:
+                # 'Battery' validation
+                if int(float(df['Battery'].iloc[i])) > 100 or int(float(df["Battery"].iloc[i])) < 0:
+                    print('Invalid value: Maximum "Battery" value must be 100')
+                    print('Date and Time of error: ' +  df['Date'][i] + ' ' + df['Time'][i])
+                    df.loc[i] = np.nan
 
-            timestamp_array = df['time']
-            timestamp_array = timestamp_array[:-7]
+                # 'mac' validation
+                if df['mac'].iloc[i] not in self.id_dictionary:
+                    print('Invalid value: Mac ' + df['mac'].iloc[i] + ' not registered, please add in worksheet "[Template] ID"')
+                    print('Date and Time of error: ' +  df['Date'][i] + ' ' + df['Time'][i])
+                    print(f'dropping row: {i}')
+                    df.loc[i] = np.nan
 
-            timestamp = datetime.strptime(timestamp_array, '%Y-%m-%dT%H:%M:%S')
+            except:
+                print(f'error with {i}')
 
-            date_array = timestamp.strftime("%m/%d/%y")
-            time_array = timestamp.strftime("%H:%M:%S")
-
-            print(timestamp_array,date_array,time_array)    
-
-            df['Distance'], df['Battery'] = value_array
-            df['Date'] = date_array
-            df['Time'] = time_array
-
-
-            # 'Distance' validation
-            if int(df['Distance']) > self._MAX_DISTANCE or int(df['Distance']) <= 0:
-                print('Invalid value: Maximum "Distance" value must be ' + str(self._MAX_DISTANCE) + ' cm.')
-                print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
-                return False
-
-
-            # 'Battery' validation
-            if int(df['Battery']) > 100 or int(df["Battery"]) < 0:
-                print('Invalid value: Maximum "Battery" value must be 100')
-                print('Date and Time of error: ' +  df['Date'] + ' ' + df['Time'])
-                return False
-            
-            return True
-        else:
-            print("Invalid timestamp")
-
-
+        #drop NaN values that were set to invalid rows: 
+        df = df.dropna(axis = 0, how = 'all')
+        print(df)
+        return df
 
 
     # Acquisitions with respectively date and time format different than "21/04/20" and "0:11:20" will not work  
     def heroku_to_dataframe(self, tag_list):
-        url = "http://dims.uiot.redes.unb.br/list/data"
+        oldurl = "http://dims.uiot.redes.unb.br/list/data"
+
+        url = "http://200.130.75.146/list/data"
+
         r = requests.get(url)
         content = r.json()
         df = pd.DataFrame.from_dict(content)
@@ -94,7 +72,7 @@ class Sheets():
         # These two lines filter the given dataframe based on "tags" column
         mask = df['tags'].apply(pd.Series).isin(tag_list).sum(axis=1) > 0
         df = df[(mask)]
-
+        df = df.dropna(subset=['serverTime'])
         final_df = pd.DataFrame()
         
 
@@ -103,42 +81,38 @@ class Sheets():
         date = pd.Series([])
         time = pd.Series([])
 
-        df.insert(3, 'Distance', None, allow_duplicates = True)
-        df.insert(4, 'Battery', None, allow_duplicates = True)
-        df.insert(5, 'Date', None, allow_duplicates = True)
-        df.insert(6, 'Time', None, allow_duplicates = True)
+        #Convert from list with lenght 1 to 4, reestructure string
+        for i in range (len(df['value'])):
+            df['value'].iloc[i] = df['value'].iloc[i][0].split(',')
+            #print(df['value'].iloc[i])
 
+        print(df)
+        df.reset_index(drop=True, inplace=True)
 
+        df_split = pd.DataFrame(df['value'].to_list(), columns = ['Distance', 'Battery', 'Latitude','Longitude'])
+        print(df_split)
+        df = pd.concat([df, df_split], axis=1)
         print (df)
-        #It creates new columns based on column "values" for better menaging data
+        df.to_csv('full_df.csv')
+
+        #It creates new columns based on column "values" for better managing data
+        df['Date'] = ''
+        df['Time'] = ''
         for i in range(len(df)):
 
-            if not self.data_validation(df.iloc[i]):
-                continue
 
-            timestamp_array = df['time'].iloc[i]
-            timestamp_array = timestamp_array[:18]
-
+            timestamp_array = df['serverTime'].iloc[i]
+            timestamp_array = timestamp_array[:19]
             timestamp = datetime.strptime(timestamp_array, '%Y-%m-%dT%H:%M:%S')
-
-            df['Distance'].iloc[i], df['Battery'].iloc[i] = df['value'].iloc[i][0].split(',')
+            
+            df['Date'].iloc[i] = timestamp_array
             df['Date'].iloc[i] = timestamp.strftime("%m/%d/%y")
             df['Time'].iloc[i] = timestamp.strftime("%H:%M:%S")
 
-            df['Distance'].iloc[i], df['Battery'].iloc[i] = df['value'].iloc[i][0].split(',')
-
-            id = self.id_dictionary[df['mac'].iloc[i]][0]
-            recent_call = self.id_recent_call_dictionary[id]
-
-            if(df['Date'].iloc[i] == recent_call[0] and df['Time'].iloc[i] == recent_call[1]):
-                df = df.iloc[:i]
-                break
-            
-            d = {'chipset' : df['chipset'].iloc[i], 'Mac' : df['mac'].iloc[i], 'Distance' : df['Distance'].iloc[i], 'Battery' : df['Battery'].iloc[i], 'Date' : df['Date'].iloc[i], 'Time' : df['Time'].iloc[i]}
-            final_df = final_df.append(pd.DataFrame(data = d, index = [0]))
-        
+        df = self.filter_df_invalid_data(df)
+        final_df = df
         return final_df
-
+        
 
 
     # This dictionary will return ID, Description and location of a container based on it's mac
@@ -193,7 +167,7 @@ class Sheets():
         for i in range(len(df)):
 
             # These variables manage information that will be used in the final dataframe
-            ID, description, location = self.id_dictionary[df['Mac'].iloc[i]]
+            ID, description, location = self.id_dictionary[df['mac'].iloc[i]]
             capacity = 1 - (float(df['Distance'].iloc[i]) / self._MAX_DISTANCE)
             battery = float(df['Battery'].iloc[i])/100
             date = df['Date'].iloc[i]
