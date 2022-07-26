@@ -71,11 +71,14 @@ class Sheets():
 
         # These two lines filter the given dataframe based on "tags" column
         mask = df['tags'].apply(pd.Series).isin(tag_list).sum(axis=1) > 0
+        df_rtt = df['tags'].apply(pd.Series).isin(tag_list).sum(axis=1) > 0
+
+        
         df = df[(mask)]
         df = df.dropna(subset=['serverTime'])
         final_df = pd.DataFrame()
         
-
+        
         distance = pd.Series([])
         battery = pd.Series([])
         date = pd.Series([])
@@ -112,7 +115,55 @@ class Sheets():
         df = self.filter_df_invalid_data(df)
         final_df = df
         return final_df
+    
+    #TODO use only heroku_to_dataframe function with one parameter of voltage
+    def voltage_to_dataframe(self, tag_list):
+        oldurl = "http://dims.uiot.redes.unb.br/list/data"
+
+        url = "http://200.130.75.146/list/data"
+
+        r = requests.get(url)
+        content = r.json()
+        df = pd.DataFrame.from_dict(content)
+
+        # These two lines filter the given dataframe based on "tags" column
+        mask = df['tags'].apply(pd.Series).isin(tag_list).sum(axis=1) > 0
         
+        df = df[(mask)]
+        df = df.dropna(subset=['serverTime'])
+        final_df = pd.DataFrame()
+        
+        #EG: {"chipset":"Green1","mac":"9F:43:45:5F:F1:42","serverTime":"2022-07-05T03:37:18.586414","serviceNumber":0,"tags":["rtt"],"value":["298"]},
+
+        #Convert from list with lenght 1 to 4, reestructure string
+        for i in range (len(df['value'])):
+            df['value'].iloc[i] = df['value'].iloc[i][0]
+            #print(df['value'].iloc[i])
+
+        print(df)
+        df.reset_index(drop=True, inplace=True)
+        df.to_csv('RTT_full_df.csv')
+
+        
+        #It creates new columns based on column "values" for better managing data
+        df['Date'] = ''
+        df['Time'] = ''
+        for i in range(len(df)):
+
+
+            timestamp_array = df['serverTime'].iloc[i]
+            timestamp_array = timestamp_array[:19]
+            timestamp = datetime.strptime(timestamp_array, '%Y-%m-%dT%H:%M:%S')
+            
+            df['Date'].iloc[i] = timestamp_array
+            df['Date'].iloc[i] = timestamp.strftime("%m/%d/%y")
+            df['Time'].iloc[i] = timestamp.strftime("%H:%M:%S")
+
+        #ADD another function if rtt filtering is needed
+        #df = self.filter_df_invalid_data(df)
+        df.to_csv('RTT_full_df.csv')
+        final_df = df
+        return final_df
 
 
     # This dictionary will return ID, Description and location of a container based on it's mac
@@ -137,8 +188,6 @@ class Sheets():
         
         return final_dictionary
 
-
-
     # This function uploads information to google docs pages
     def upload_to_google(self, all_records_dataFrame):
         _ALL_RECORDS_PAGE_NAME = '[Template] Dados_Historicos'
@@ -154,6 +203,28 @@ class Sheets():
 
             last_records_worksheet.update(cell.address, df.values.tolist())
 
+        all_records_worksheet.insert_rows(all_records_dataFrame.values.tolist(), 2)
+
+#TODO use only format_data_frame function with one parameter of voltage, debug to create past_data_sheet TRue mode or simmilar work
+    # This function uploads information to google docs pages
+    def upload_to_google_rtt(self, all_records_dataFrame,recent_table_sheet,past_data_sheet=False):
+        _ALL_RECORDS_PAGE_NAME = recent_table_sheet
+        
+
+        all_records_worksheet = self.spreadsheet.worksheet(_ALL_RECORDS_PAGE_NAME)
+        
+        if past_data_sheet == True:
+        # This for statement deals with finding wich row to update in most recent record's page
+            _LAST_RECORDS_PAGE_NAME = past_data_sheet
+            last_records_worksheet = self.spreadsheet.worksheet(_LAST_RECORDS_PAGE_NAME)
+
+            for instance in self.last_call_dictionary:
+                cell = last_records_worksheet.find(instance)
+                df = pd.DataFrame(self.last_call_dictionary[instance])
+
+                last_records_worksheet.update(cell.address, df.values.tolist())
+
+        # upload to sheets last records
         all_records_worksheet.insert_rows(all_records_dataFrame.values.tolist(), 2)
 
 
@@ -187,7 +258,34 @@ class Sheets():
 
         return final_dataframe
 
+ #TODO use only format_data_frame function with one parameter of voltage
+   
+    def format_data_frame_rtt(self, df): 
 
+        # An empty dataFrame
+        final_dataframe = pd.DataFrame()
+
+        for i in range(len(df)):
+
+            # These variables manage information that will be used in the final dataframe
+            ID, description, location = self.id_dictionary[df['mac'].iloc[i]]
+            voltage = float(df['value'].iloc[i])
+            date = df['Date'].iloc[i]
+            time = df['Time'].iloc[i]
+
+            # d is a dictionary where strings are indexe's and it's respective values
+            d = {'ID' : ID, 'Description': description, 'Voltage' : voltage, 'Date (DD/MM/YY)': date,
+            'Time (HH/MM/SS)' : time, 'Location (Latitude, Longitude)' : location}
+
+            # df_aux is a dataFrame based on dictionary 'd'
+            df_aux = pd.DataFrame(data = d, index = [0])
+
+            final_dataframe = final_dataframe.append(df_aux)
+
+            if ID not in self.last_call_dictionary:
+                self.last_call_dictionary[ID] = df_aux
+
+        return final_dataframe
 
 
     # The initializer method deals with authenticating google docs and inicializing necessary dictionaries
