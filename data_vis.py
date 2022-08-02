@@ -63,7 +63,6 @@ def main():
         title_x=0.5,
         xaxis_title="Date (MM/DD/YY)",
         yaxis_title="Capacity and Battery (%)",
-        legend_title="Legend Title",
         font=dict(
             family="Courier New, monospace",
             size=18,
