@@ -18,7 +18,7 @@ def plotly_plot(df_,x_axis,y_axis):
     fig.update_layout(
         title=f"{y_axis} by {x_axis}",
         title_x=0.3,
-        xaxis_title=f"{y_axis}",
+        xaxis_title=f"{x_axis}",
         yaxis_title=f"{y_axis} (%)",
         font=dict(
             family="Courier New, monospace",
