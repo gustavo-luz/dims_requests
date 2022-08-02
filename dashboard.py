@@ -295,8 +295,11 @@ class Sheets():
         # This dictionary handles last recorded data from the containers, that will be uploaded to worksheet '[Template] Dados_Recentes'
         self.last_call_dictionary = {}               
 
-        self.spreadsheet = self.sheets_authentication()
+        try:
+            self.spreadsheet = self.sheets_authentication()
 
-        self.id_dictionary = self._get_mac_id_dictionary()
+            self.id_dictionary = self._get_mac_id_dictionary()
 
-        self.id_recent_call_dictionary = self._get_id_recent_call_dictionary()
+            self.id_recent_call_dictionary = self._get_id_recent_call_dictionary()
+        except:
+            print("Error authenticating, please include credential files")
