@@ -42,7 +42,7 @@ def process_df(df):
     return df
 
 def main():
-    df = pd.read_csv('full_df.csv')
+    df = pd.read_csv('./datasets/full_df.csv')
     print(df.columns[3:5])
     df = process_df(df)
 
@@ -71,7 +71,7 @@ def main():
     )
 
     fig.show()
-    plotly.offline.plot(fig, image_filename=f"plots/Capacity+and_Battery_by_Time.png", image='png')
+    plotly.offline.plot(fig, image_filename=f"plots/Capacity_and_Battery_by_Time.png", image='png')
     
     print(df)
 

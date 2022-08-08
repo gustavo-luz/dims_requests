@@ -96,7 +96,6 @@ class Sheets():
         print(df_split)
         df = pd.concat([df, df_split], axis=1)
         print (df)
-        df.to_csv('full_df.csv')
 
         #It creates new columns based on column "values" for better managing data
         df['Date'] = ''
@@ -111,7 +110,8 @@ class Sheets():
             df['Date'].iloc[i] = timestamp_array
             df['Date'].iloc[i] = timestamp.strftime("%m/%d/%y")
             df['Time'].iloc[i] = timestamp.strftime("%H:%M:%S")
-
+            
+        df.to_csv('unfiltered_df.csv')
         df = self.filter_df_invalid_data(df)
         final_df = df
         return final_df

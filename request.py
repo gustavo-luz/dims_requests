@@ -26,9 +26,11 @@ print(final_df)
 
 final_df.to_csv('full_df.csv')
 final_rtt_df.to_csv('full_rtt_df.csv')
+"""
 try:
     # Takes the formated dataframe and posts on google spreadsheets
     sheets.upload_to_google(final_df)
     sheets.upload_to_google_rtt(final_rtt_df,'[VOLTAGE] Historical_Data',past_data_sheet=False)
 except:
     print("Could not upload df to google sheets")
+"""
